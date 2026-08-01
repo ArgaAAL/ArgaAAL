@@ -1,102 +1,142 @@
 <p align="center">
-  <img src="./media/system-loop.gif" width="100%" alt="Four real engineering constraints moving through a decision surface into evidence" />
+  <img src="./media/system-loop.gif" width="100%" alt="One engineering signal moving through intent, risk, runtime, infrastructure, test evidence, native input, camera research, and belief revision" />
 </p>
 
 <p align="center">
-  <strong>Some problems stay politely inside one layer. The interesting ones usually do not.</strong>
+  <strong>Software engineer for systems that refuse to stay in one layer.</strong>
   <br />
-  I build software where the requirement crosses boundaries: service topology, model execution,
-  browser evidence, product interfaces, and unsupported hardware.
+  I start with the requirement, the failure mode, and the proof that would make the result believable.
+  The language, framework, and deployment shape follow from there.
   <br />
-  <sub>The stack is a decision, not an identity.</sub>
+  <sub><code>REQUIREMENT &gt; BOUNDARY &gt; DECISION &gt; EVIDENCE</code></sub>
 </p>
 
-## Systems that had to work
+## 01 / Intent becomes action
 
-<a href="https://github.com/fradiumofficial/fradium">
-  <img src="./media/fradium-cover.webp" width="100%" alt="Fradium wallet, transaction analysis, and product surfaces" />
-</a>
+<img src="./media/chapter-intent.webp" width="100%" alt="A continuous path from prompt through review and risk analysis to a signed action and receipt" />
 
 ### [Fradium](https://github.com/fradiumofficial/fradium)
 
-**Forensic transaction intelligence under on-chain constraints.** On a five-person team, I
-worked across the AI and product boundary: cross-chain risk analysis, Rust/ONNX/Wasm inference,
-stable model persistence, ICPSwap integration, wallet features, and Paylink.
+**Transaction intelligence that had to fit inside the transaction flow.** On a five-person team,
+I worked across cross-chain risk analysis, Rust/ONNX/Wasm inference, stable model persistence,
+ICPSwap integration, wallet features, and Paylink. The model mattered, but so did making its result
+legible before a person approved an action.
 
-> `CONSTRAINT` Useful risk analysis had to fit a deterministic Wasm runtime and remain legible to
-> the person approving the transaction.
->
-> `EVIDENCE` WCHL 2025 Fully On-Chain Track winner, first place in the qualification and Indonesia
-> rounds, and second place in Asia.
+`TEAM EVIDENCE` WCHL 2025 Fully On-Chain Track winner; first in qualification and Indonesia;
+second in Asia.
+
+### [Nara Wallet](https://github.com/gaskeunbang/nara) / Nova Wallet
+
+**Natural language is useful only when execution remains inspectable.** For Nara, I contributed
+multi-exchange market data, deterministic feature scaling, and LightGBM-to-ONNX execution-cost
+inference for a conversational wallet running within Wasm constraints. Nova explored the adjacent
+product problem: turning EVM intent into generative transaction previews with human confirmation
+before signing.
+
+`TEAM EVIDENCE` Nara won the NextGen Agents Hackathon. Nova received 1st Notable Mention and
+1st place in the Social Media Challenge at SEA Lisk Builders Challenge 3.
 
 <details>
-<summary><strong>Open the engineering layer</strong></summary>
+<summary><strong>What the interface is protecting</strong></summary>
 
-- Graph and tabular risk pipelines using GNN and XGBoost approaches
-- Rust-side ONNX execution and persistent model state under Internet Computer constraints
-- Wallet, swap, and payment-link integration beyond the model itself
-- White-box explanations, product flows, testing evidence, and team attribution documented in the repository
+- Intent can be ambiguous; the transaction preview cannot be.
+- Model output is advisory until deterministic checks and user confirmation agree.
+- Risk belongs near the decision, not buried in a separate dashboard.
+- These are team projects; the descriptions above are intentionally scoped to my contribution.
 
 </details>
 
-<br />
+## 02 / Systems under pressure
 
-<a href="https://github.com/ArgaAAL/nabu-a1931-bridge">
-  <img src="./media/a1931-dual-platform.webp" width="100%" alt="The same A1931 keyboard case working with Xiaomi Pad 5 on Android and Windows on ARM" />
-</a>
+<img src="./media/chapter-pressure.webp" width="100%" alt="A load path moving through gateway, queue, state, proof, and rerun stages" />
 
-### [Nabu A1931 Bridge](https://github.com/ArgaAAL/nabu-a1931-bridge)
+### Marketizen
 
-**One adapted keyboard case. Two native input stacks.** I turned an A1931 Bluetooth keyboard
-case into a native multitouch device on Xiaomi Pad 5 across Android and Windows on ARM, instead
-of stopping at keyboard compatibility or cursor emulation.
+**A marketplace backend built around load, ownership, and failure boundaries.** I implemented the
+backend and deployment as a Go modular monolith using PostgreSQL, RabbitMQ, Redis, PgBouncer,
+Traefik, and Docker Swarm. The architecture stayed extractable without paying the operational cost
+of premature microservices.
 
-> `ANDROID` BLE HID input is relayed into native multitouch behavior.
->
-> `WINDOWS ARM64` A UMDF path exposes Windows Precision Touchpad semantics.
->
-> `SHIPPED` Public source, guarded release packages, checksums, exact compatibility boundaries,
-> and rollback documentation.
+`LOAD EVIDENCE` A 1,000-virtual-user plateau completed 20,320 requests and all 40,640 semantic
+checks at 328.57 ms p95 latency.
+
+### [PayGate](https://github.com/wildanniam/paygate-stellar)
+
+**A paid API gateway where payment is part of request authorization.** The current testnet path
+combines a paid proxy, Stellar payment rails, and Soroban escrow boundaries instead of treating
+settlement as a disconnected billing screen.
+
+`FUNDING EVIDENCE` Accepted for a USD 5,000 Stellar Community Fund Instaward.
+
+### [SpecHeal](https://github.com/antech2-async/SpecHeal)
+
+**UI test recovery that refuses a convenient false green.** A failed selector first becomes DOM and
+screenshot evidence; an AI patch candidate is then browser-validated, rerun, and recorded before it
+can be treated as recovery.
+
+`TEAM EVIDENCE` Second place at Refactory Hackathon 2026.
 
 <details>
-<summary><strong>Why this is more than a device tweak</strong></summary>
+<summary><strong>Why these systems share a chapter</strong></summary>
 
-The work crosses Bluetooth HID behavior, Android input plumbing, native touch semantics,
-Windows UMDF, ARM64 packaging, and failure-safe release design. The repository is intentionally
-strict about supported hardware and about what the bridge does not claim to support.
+They solve different product problems, but the engineering question is the same: where should
+pressure be absorbed? Marketizen makes load explicit, PayGate makes authorization and settlement
+explicit, and SpecHeal makes proof explicit. Hiding those boundaries would make each interface
+simpler and each system less trustworthy.
 
 </details>
 
-## Elsewhere in the stack
+## 03 / Unsupported edges
 
-- **[Nara Wallet](https://github.com/gaskeunbang/nara) - NextGen Agents Hackathon winner.**
-  Multi-exchange market data, deterministic feature scaling, and LightGBM-to-ONNX execution-cost
-  inference for a conversational wallet that runs within Wasm constraints.
-- **[SpecHeal](https://github.com/antech2-async/SpecHeal) - Refactory Hackathon 2026 second place.**
-  Evidence-gated Playwright recovery: DOM and screenshot capture, structured AI evaluation,
-  browser rerun proof, patch previews, and audit trails. No blind self-heal.
-- **Marketizen - backend and deployment owner.** A Go marketplace built as a modular monolith with
-  PostgreSQL, RabbitMQ, Redis, PgBouncer, Traefik, and Docker Swarm. Its 1,000-virtual-user plateau
-  completed 20,320 requests with all 40,640 semantic checks passing at 328.57 ms p95 latency.
-- **[PayGate](https://github.com/wildanniam/paygate-stellar) - current.** Stellar-based cross-border
-  payment infrastructure accepted for a USD 5,000 Stellar Community Fund Instaward.
+<img src="./media/chapter-edges.webp" width="100%" alt="Native multitouch, an unresolved camera boundary, and a provisional belief system" />
 
-## Current edge
+### [Nabu A1931 Bridge](https://github.com/ArgaAAL/nabu-a1931-bridge) / Nabu Camera
 
-The public A1931 bridge is complete. A separate, private Nabu investigation is still in progress:
-reverse engineering the Qualcomm camera/CDSP path for the Xiaomi Pad 5 native Windows on ARM port.
-The camera stack is an open engineering problem, not a claimed solution.
+**One finished bridge and one open hardware problem.** The public A1931 bridge turns a Bluetooth
+keyboard case into native multitouch on Xiaomi Pad 5 across Android and Windows on ARM. It ships
+with guarded packages, checksums, compatibility boundaries, and rollback documentation.
+
+The separate camera investigation is private and still in progress. It maps the Qualcomm camera and
+CDSP path behind the broken native Windows on ARM camera stack. A green frame is a symptom, not a
+solution, so this remains labelled WIP.
+
+### Self-consistency research
+
+**A private, unfinished inquiry into how beliefs earn persistence.** The working architecture keeps
+proposal generation separate from belief accountability: compression, provenance, counterfactuals,
+sandbox tests, and composition determine whether a hypothesis survives provisionally. It is neither
+a finished AGI claim nor a symbolic-AI toy dressed up as one.
 
 <details>
-<summary><strong>Open the technical map</strong></summary>
+<summary><strong>Public-safe boundary</strong></summary>
 
-- **Backend and distributed systems:** Go, PostgreSQL, RabbitMQ, Redis, event-driven architecture,
-  API gateways, Docker, and Kubernetes
-- **Applied ML systems:** Python, TensorFlow/TFX, PyTorch, ONNX, LightGBM, XGBoost, and graph neural networks
-- **Constrained platforms:** Rust, WebAssembly, Internet Computer, Stellar/EVM, Android input systems,
-  and Windows on ARM
-- **Product and quality:** TypeScript, React/Next.js, Playwright, CI/CD, load testing, and
-  evidence-gated automation
+- **A1931:** complete and public; exact supported hardware and release safeguards are documented.
+- **Nabu Camera:** active Windows on ARM reverse engineering; no claim that camera bring-up is solved.
+- **Self-consistency:** research architecture and philosophy are still evolving; private code stays private.
+
+</details>
+
+## Smaller public probes
+
+Not every repository needs a victory speech. Some are narrow experiments used to answer one
+question well:
+
+- **Slippage Prediction Engine:** execution-cost estimation before an on-chain trade.
+- **Ethereum and Bitcoin Forensics:** transaction-path and wallet-behavior investigations.
+- **Matrix Factorization From Scratch:** recommendation mechanics without hiding behind a library call.
+- **Applied ML and automation studies:** smaller public traces from a broader private and team-based body of work.
+
+<details>
+<summary><strong>Technical map</strong></summary>
+
+- **Backend and distributed systems:** Go, Rust, Python, PostgreSQL, RabbitMQ, Redis, event-driven
+  architecture, API gateways, Docker, Kubernetes, and load testing
+- **Applied ML systems:** TensorFlow/TFX, PyTorch, ONNX, LightGBM, XGBoost, graph neural networks,
+  constrained inference, and evidence-aware automation
+- **Constrained platforms:** WebAssembly, Internet Computer, Stellar/EVM, Android input systems,
+  Windows on ARM, Bluetooth HID, and UMDF
+- **Product and quality:** TypeScript, React/Next.js, Playwright, CI/CD, human-in-the-loop flows,
+  interface prototyping, and reproducible validation
 
 </details>
 
@@ -106,6 +146,6 @@ Software Engineering, Telkom University | GPA 3.89/4.00 | thesis completed with 
 [LinkedIn](https://www.linkedin.com/in/argaadolflumunon/)
 
 <sub>
-Some projects live in team organizations; every description above is scoped to my contribution.
+Several projects live in team organizations; every description above is scoped to my contribution.
 Earlier work may appear under the <code>gitarRacing</code> identity; <code>ArgaAAL</code> is my current account.
 </sub>
