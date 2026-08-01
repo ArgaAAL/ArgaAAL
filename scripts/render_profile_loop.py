@@ -9,9 +9,9 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 WIDTH = 1200
 HEIGHT = 430
 MOTION_FRAMES = 10
+HOLD_FRAMES = 24
 TRANSITION_FRAMES = 6
 FRAME_DURATION_MS = 100
-HOLD_DURATION_MS = 2400
 
 INK = (8, 11, 9)
 INK_2 = (15, 20, 17)
@@ -366,40 +366,68 @@ def draw_belief(progress: float) -> Image.Image:
 
 
 SCENES = [draw_intent, draw_risk, draw_runtime, draw_flow, draw_evidence, draw_input, draw_camera, draw_belief]
+HOLD_ANCHORS = [(1050, 222), (1078, 347), (1088, 220), (1085, 238), (1075, 120), (925, 232), (1060, 210), (938, 224)]
+
+
+def draw_living_hold(frame: Image.Image, scene_index: int, phase: float) -> Image.Image:
+    image = frame.copy()
+    light = scene_index in (2, 4, 7)
+    draw = ImageDraw.Draw(image, "RGBA")
+    muted = muted_color(light)
+    accent = GREEN if light else LIME
+
+    anchor_x, anchor_y = HOLD_ANCHORS[scene_index]
+    pulse = 0.5 + 0.5 * math.sin(phase * math.tau)
+    radius = 13 + pulse * 8
+    draw.ellipse(
+        (anchor_x - radius, anchor_y - radius, anchor_x + radius, anchor_y + radius),
+        outline=(*accent, int(65 + pulse * 85)),
+        width=2,
+    )
+
+    trace_y = 382
+    trace_start = 535
+    trace_end = 1118
+    draw.line((trace_start, trace_y, trace_end, trace_y), fill=(*muted, 46), width=1)
+    tracer_x = mix(trace_start, trace_end, ease(phase))
+    trail_start = max(trace_start, tracer_x - 68)
+    draw.line((trail_start, trace_y, tracer_x, trace_y), fill=(*accent, 150), width=2)
+    glow_dot(image, tracer_x, trace_y, radius=3, color=accent)
+    return image
 
 
 def render_animation() -> Path:
     frames: list[Image.Image] = []
-    durations: list[int] = []
     for scene_index, renderer in enumerate(SCENES):
         next_renderer = SCENES[(scene_index + 1) % len(SCENES)]
         for local_frame in range(MOTION_FRAMES):
             progress = local_frame / (MOTION_FRAMES - 1)
             frame = renderer(progress)
-            frames.append(frame.convert("RGB").quantize(colors=64, method=Image.Quantize.MEDIANCUT))
-            durations.append(FRAME_DURATION_MS)
+            frames.append(frame.convert("RGB"))
 
         hold = renderer(1.0)
-        frames.append(hold.convert("RGB").quantize(colors=64, method=Image.Quantize.MEDIANCUT))
-        durations.append(HOLD_DURATION_MS)
+        for local_frame in range(HOLD_FRAMES):
+            phase = local_frame / HOLD_FRAMES
+            frames.append(draw_living_hold(hold, scene_index, phase).convert("RGB"))
 
         incoming = next_renderer(0.0)
         for local_frame in range(1, TRANSITION_FRAMES + 1):
             transition = ease(local_frame / TRANSITION_FRAMES)
             frame = Image.blend(hold, incoming, transition)
-            frames.append(frame.convert("RGB").quantize(colors=64, method=Image.Quantize.MEDIANCUT))
-            durations.append(FRAME_DURATION_MS)
+            frames.append(frame.convert("RGB"))
 
-    output = MEDIA / "system-loop.gif"
+    output = MEDIA / "system-loop.webp"
     output.parent.mkdir(parents=True, exist_ok=True)
     frames[0].save(
         output,
+        format="WEBP",
         save_all=True,
         append_images=frames[1:],
-        duration=durations,
+        duration=FRAME_DURATION_MS,
         loop=0,
-        optimize=True,
-        disposal=2,
+        quality=82,
+        method=4,
+        minimize_size=True,
     )
     return output
 

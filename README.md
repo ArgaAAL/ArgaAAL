@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./media/system-loop.gif" width="100%" alt="One engineering signal moving through intent, risk, runtime, infrastructure, test evidence, native input, camera research, and belief revision" />
+  <img src="./media/system-loop.webp" width="100%" alt="One engineering signal moving through intent, risk, runtime, infrastructure, test evidence, native input, camera research, and belief revision" />
 </p>
 
 <p align="center">
