@@ -8,8 +8,10 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 WIDTH = 1200
 HEIGHT = 430
-FRAMES_PER_SCENE = 14
-FRAME_DURATION_MS = 90
+MOTION_FRAMES = 10
+TRANSITION_FRAMES = 6
+FRAME_DURATION_MS = 100
+HOLD_DURATION_MS = 2400
 
 INK = (8, 11, 9)
 INK_2 = (15, 20, 17)
@@ -41,7 +43,6 @@ def font(path: str, size: int) -> ImageFont.FreeTypeFont:
 
 
 DISPLAY = font("C:/Windows/Fonts/DejaVuSans-Bold.ttf", 42)
-CHAPTER = font("C:/Windows/Fonts/DejaVuSans-Bold.ttf", 34)
 HEADING = font("C:/Windows/Fonts/DejaVuSans-Bold.ttf", 24)
 BODY = font("C:/Windows/Fonts/DejaVuSans.ttf", 17)
 MONO = font("C:/Windows/Fonts/CascadiaMono.ttf", 14)
@@ -369,16 +370,25 @@ SCENES = [draw_intent, draw_risk, draw_runtime, draw_flow, draw_evidence, draw_i
 
 def render_animation() -> Path:
     frames: list[Image.Image] = []
+    durations: list[int] = []
     for scene_index, renderer in enumerate(SCENES):
         next_renderer = SCENES[(scene_index + 1) % len(SCENES)]
-        for local_frame in range(FRAMES_PER_SCENE):
-            progress = local_frame / (FRAMES_PER_SCENE - 1)
+        for local_frame in range(MOTION_FRAMES):
+            progress = local_frame / (MOTION_FRAMES - 1)
             frame = renderer(progress)
-            if progress > 0.78:
-                transition = ease((progress - 0.78) / 0.22)
-                incoming = next_renderer(transition * 0.12)
-                frame = Image.blend(frame, incoming, transition)
             frames.append(frame.convert("RGB").quantize(colors=64, method=Image.Quantize.MEDIANCUT))
+            durations.append(FRAME_DURATION_MS)
+
+        hold = renderer(1.0)
+        frames.append(hold.convert("RGB").quantize(colors=64, method=Image.Quantize.MEDIANCUT))
+        durations.append(HOLD_DURATION_MS)
+
+        incoming = next_renderer(0.0)
+        for local_frame in range(1, TRANSITION_FRAMES + 1):
+            transition = ease(local_frame / TRANSITION_FRAMES)
+            frame = Image.blend(hold, incoming, transition)
+            frames.append(frame.convert("RGB").quantize(colors=64, method=Image.Quantize.MEDIANCUT))
+            durations.append(FRAME_DURATION_MS)
 
     output = MEDIA / "system-loop.gif"
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -386,7 +396,7 @@ def render_animation() -> Path:
         output,
         save_all=True,
         append_images=frames[1:],
-        duration=FRAME_DURATION_MS,
+        duration=durations,
         loop=0,
         optimize=True,
         disposal=2,
@@ -394,107 +404,9 @@ def render_animation() -> Path:
     return output
 
 
-def chapter_base(light: bool, number: str, title: str, subtitle: str) -> tuple[Image.Image, ImageDraw.ImageDraw]:
-    background = PORCELAIN if light else INK
-    image = Image.new("RGBA", (1200, 300), (*background, 255))
-    draw = ImageDraw.Draw(image, "RGBA")
-    color = text_color(light)
-    muted = muted_color(light)
-    for index in range(5):
-        y = 40 + index * 60
-        draw.arc((-120 + index * 100, y - 170, 950 + index * 80, y + 420), 195, 340, fill=(*muted, 34), width=1)
-    draw.text((36, 28), number, font=MONO_BOLD, fill=LIME if not light else GREEN)
-    draw.text((36, 56), title, font=CHAPTER, fill=color)
-    draw.text((38, 105), subtitle, font=SMALL, fill=muted)
-    return image, draw
-
-
-def render_chapter_intent() -> Path:
-    image, draw = chapter_base(False, "01", "INTENT BECOMES ACTION", "NARA / NOVA / FRADIUM")
-    points = [(420, 220), (585, 150), (760, 220), (930, 145), (1110, 220)]
-    for index in range(len(points) - 1):
-        draw.line((*points[index], *points[index + 1]), fill=(*MUTED, 120), width=2)
-    labels = ["PROMPT", "REVIEW", "RISK", "SIGN", "RECEIPT"]
-    for index, ((x, y), label) in enumerate(zip(points, labels)):
-        radius = 28 if index in (1, 2, 3) else 18
-        fill = LIME if index in (1, 3) else (28, 36, 31)
-        draw.ellipse((x - radius, y - radius, x + radius, y + radius), fill=fill, outline=PORCELAIN_2, width=2)
-        draw.text((x, y + 49), label, font=SMALL, fill=PORCELAIN, anchor="mm")
-    draw.line((*points[0], *points[-1]), fill=(*LIME, 48), width=8)
-    glow_dot(image, *points[2])
-    output = MEDIA / "chapter-intent.webp"
-    image.convert("RGB").save(output, "WEBP", quality=88, method=6)
-    return output
-
-
-def render_chapter_pressure() -> Path:
-    image, draw = chapter_base(True, "02", "SYSTEMS UNDER PRESSURE", "MARKETIZEN / PAYGATE / SPECHEAL")
-    rail_y = 210
-    stops = [(400, "LOAD"), (545, "GATEWAY"), (695, "QUEUE"), (845, "STATE"), (1010, "PROOF"), (1140, "PASS")]
-    draw.line((stops[0][0], rail_y, stops[-1][0], rail_y), fill=(*GRAPHITE, 125), width=3)
-    for index, (x, label) in enumerate(stops):
-        fill = GREEN if index in (1, 4, 5) else PORCELAIN_2
-        radius = 24 if index in (1, 4) else 14
-        draw.ellipse((x - radius, rail_y - radius, x + radius, rail_y + radius), fill=fill, outline=INK, width=1)
-        draw.text((x, 252), label, font=SMALL, fill=INK, anchor="mm")
-    draw.text((545, 160), "ROUTE", font=MONO_BOLD, fill=GRAPHITE, anchor="mm")
-    draw.text((1010, 160), "RERUN", font=MONO_BOLD, fill=GRAPHITE, anchor="mm")
-    glow_dot(image, 1010, rail_y, color=GREEN)
-    output = MEDIA / "chapter-pressure.webp"
-    image.convert("RGB").save(output, "WEBP", quality=88, method=6)
-    return output
-
-
-def render_chapter_edges() -> Path:
-    image, draw = chapter_base(False, "03", "UNSUPPORTED EDGES", "A1931 / NABU CAMERA / SELF-CONSISTENCY")
-    draw.rounded_rectangle((400, 145, 620, 265), radius=14, outline=(*PORCELAIN_2, 130), width=2)
-    draw.ellipse((475, 184, 495, 204), fill=LIME)
-    draw.ellipse((525, 184, 545, 204), fill=LIME)
-    draw.text((510, 280), "NATIVE INPUT", font=SMALL, fill=MUTED, anchor="mm")
-
-    lens = (790, 205)
-    for radius, color in ((65, GRAPHITE), (45, BLUE), (20, GREEN)):
-        draw.ellipse((lens[0] - radius, lens[1] - radius, lens[0] + radius, lens[1] + radius), outline=color, width=4)
-    draw.line((855, 205, 960, 205), fill=(*RED, 190), width=3)
-    draw.line((960, 150, 960, 258), fill=(*RED, 220), width=3)
-    draw.text((910, 280), "CAMERA / WIP", font=SMALL, fill=MUTED, anchor="mm")
-
-    center = (1080, 205)
-    for index in range(5):
-        angle = index * math.tau / 5
-        x = center[0] + math.cos(angle) * 72
-        y = center[1] + math.sin(angle) * 50
-        draw.line((*center, x, y), fill=(*MUTED, 75), width=1)
-        draw.ellipse((x - 11, y - 11, x + 11, y + 11), fill=GREEN if index == 2 else GRAPHITE)
-    draw.text((1080, 280), "PROVISIONAL BELIEF", font=SMALL, fill=MUTED, anchor="mm")
-    output = MEDIA / "chapter-edges.webp"
-    image.convert("RGB").save(output, "WEBP", quality=88, method=6)
-    return output
-
-
-def render_contact_sheet() -> Path:
-    sheet = Image.new("RGB", (600, 4 * 215), INK)
-    for index, renderer in enumerate(SCENES):
-        frame = renderer(0.72).convert("RGB").resize((600, 215), Image.Resampling.LANCZOS)
-        sheet.paste(frame, (0, index * 107 if index < 4 else (index - 4) * 107 + 430))
-    # A readable two-column proof sheet for local review only.
-    sheet = Image.new("RGB", (1200, 860), INK)
-    for index, renderer in enumerate(SCENES):
-        frame = renderer(0.72).convert("RGB").resize((600, 215), Image.Resampling.LANCZOS)
-        sheet.paste(frame, ((index % 2) * 600, (index // 2) * 215))
-    output = MEDIA / "system-loop-contact-sheet.jpg"
-    sheet.save(output, quality=90)
-    return output
-
-
 def render() -> list[Path]:
     MEDIA.mkdir(parents=True, exist_ok=True)
-    return [
-        render_animation(),
-        render_chapter_intent(),
-        render_chapter_pressure(),
-        render_chapter_edges(),
-    ]
+    return [render_animation()]
 
 
 if __name__ == "__main__":
