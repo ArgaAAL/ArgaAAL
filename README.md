@@ -12,13 +12,13 @@
 ## Selected systems
 
 - **[Fradium](https://github.com/fradiumofficial/fradium) - WCHL 2025 Fully On-Chain Track
-  winner.** On a five-person team, I contributed cross-chain transaction-risk analysis,
+  winner.** I contributed cross-chain transaction-risk analysis,
   Rust/ONNX/Wasm inference, stable model persistence, ICPSwap integration, wallet features, and
   Paylink. The project also placed first in the qualification and Indonesia rounds and second in Asia.
 - **Marketizen - backend and deployment owner.** I built a Go marketplace as a modular monolith
   with PostgreSQL, RabbitMQ, Redis, PgBouncer, Traefik, and Docker Swarm. A 1,000-virtual-user
   plateau completed 20,320 requests with all 40,640 semantic checks passing at 328.57 ms p95 latency.
-- **[Nara Wallet](https://github.com/gaskeunbang/nara) - NextGen Agents Hackathon winner.** I
+- **[Nara Wallet](https://github.com/ArgaAAL/nara-wallet) - NextGen Agents Hackathon winner.** I
   contributed multi-exchange market-data acquisition, deterministic feature scaling, and
   LightGBM-to-ONNX execution-cost inference for a Wasm-compatible conversational wallet.
 - **[SpecHeal](https://github.com/antech2-async/SpecHeal) - Refactory Hackathon 2026 second
@@ -55,7 +55,7 @@ Ethereum forensics, and recommendation mechanics. Not every repository needs to 
 
 ---
 
-Software Engineering, Telkom University | GPA 3.89/4.00 | thesis completed with grade A<br />
+Software Engineering, Telkom University | GPA 3.90/4.00 | thesis completed with grade A<br />
 [LinkedIn](https://www.linkedin.com/in/argaadolflumunon/)
 
 <sub>
