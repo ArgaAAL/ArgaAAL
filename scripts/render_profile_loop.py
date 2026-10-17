@@ -309,31 +309,30 @@ def draw_input(progress: float) -> Image.Image:
     return image
 
 
-def draw_camera(progress: float) -> Image.Image:
+def draw_retrieval(progress: float) -> Image.Image:
     image = base(6, False, progress)
     draw = ImageDraw.Draw(image, "RGBA")
-    scene_title(draw, False, "07", "Nabu Camera / WIP", "An unresolved edge\nstays unresolved.", "WINDOWS ON ARM / QUALCOMM CAMERA STACK")
+    scene_title(draw, False, "07", "Agentic RAG / evaluation", "Answers need\ntraceable sources.", "RETRIEVE > CITE > CHECK > ABSTAIN")
 
-    lens_x, lens_y = 610, 210
-    for radius, color in ((92, GRAPHITE), (68, BLUE), (40, INK_2), (14, LIME)):
-        draw.ellipse((lens_x - radius, lens_y - radius, lens_x + radius, lens_y + radius), outline=color, width=5)
+    draw.rounded_rectangle((560, 104, 744, 306), radius=8, fill=INK_2, outline=MUTED, width=2)
+    draw.text((578, 120), "SOURCE DOCUMENT", font=SMALL, fill=BLUE)
+    for index in range(6):
+        y = 156 + index * 22
+        active = progress * 6 >= index + 0.2
+        draw.line((579, y, 720 - (index % 3) * 18, y), fill=LIME if active else GRAPHITE, width=3)
+    draw.text((578, 279), "page / section", font=SMALL, fill=MUTED)
 
-    stages = [(760, "SENSOR"), (855, "ISP"), (950, "IPE"), (1060, "BUFFER ?")]
-    draw.line((lens_x + 92, lens_y, 1095, lens_y), fill=(*MUTED, 110), width=3)
-    for index, (x, label) in enumerate(stages):
-        reached = progress * len(stages) >= index + 0.2
-        draw.ellipse((x - 12, lens_y - 12, x + 12, lens_y + 12), fill=GREEN if reached else GRAPHITE)
-        draw.text((x, lens_y + 34), label, font=SMALL, fill=PORCELAIN, anchor="mm")
-
-    stop_x = mix(lens_x + 92, 1060, ease(progress))
-    glow_dot(image, stop_x, lens_y, color=GREEN)
-    draw.rectangle((1030, 102, 1150, 182), fill=(41, 86, 55), outline=GREEN, width=2)
-    for y in range(108, 179, 7):
-        draw.line((1034, y, 1146, y), fill=(*LIME, 25), width=1)
-    draw.text((1090, 142), "GREEN FRAME", font=SMALL, fill=PORCELAIN, anchor="mm")
-    draw.line((1060, 176, 1060, 330), fill=(*RED, 210), width=3)
-    draw.text((1076, 314), "MAPPING / OWNERSHIP", font=SMALL, fill=RED)
-    draw.text((1076, 334), "OPEN PROBLEM", font=MONO_BOLD, fill=PORCELAIN)
+    amount = ease(clamp((progress - 0.2) / 0.65))
+    draw.line((744, 207, 824, 207), fill=(*MUTED, 120), width=3)
+    draw.line((744, 207, mix(744, 824, amount), 207), fill=LIME, width=4)
+    glow_dot(image, mix(744, 824, amount), 207)
+    draw.rounded_rectangle((824, 117, 1148, 286), radius=8, fill=INK_2, outline=BLUE, width=2)
+    draw.text((844, 135), "ANSWER + PROVENANCE", font=MONO_BOLD, fill=PORCELAIN)
+    draw.text((844, 176), "claim -> source / page", font=MONO, fill=BLUE)
+    draw.text((844, 205), "citation + abstention scoring", font=SMALL, fill=MUTED)
+    draw.text((844, 248), "FROZEN DEV / BLIND SPLITS", font=SMALL, fill=LIME)
+    draw.rounded_rectangle((824, 308, 1148, 348), radius=5, outline=GREEN, width=2)
+    draw.text((986, 328), "ABSTAIN IF UNSUPPORTED", font=SMALL, fill=PORCELAIN, anchor="mm")
     return image
 
 
@@ -365,8 +364,8 @@ def draw_belief(progress: float) -> Image.Image:
     return image
 
 
-SCENES = [draw_intent, draw_risk, draw_runtime, draw_flow, draw_evidence, draw_input, draw_camera, draw_belief]
-HOLD_ANCHORS = [(1050, 222), (1078, 347), (1088, 220), (1085, 238), (1075, 120), (925, 232), (1060, 210), (938, 224)]
+SCENES = [draw_intent, draw_risk, draw_runtime, draw_flow, draw_evidence, draw_input, draw_retrieval, draw_belief]
+HOLD_ANCHORS = [(1050, 222), (1078, 347), (1088, 220), (1085, 238), (1075, 120), (925, 232), (986, 328), (938, 224)]
 
 
 def draw_living_hold(frame: Image.Image, scene_index: int, phase: float) -> Image.Image:
