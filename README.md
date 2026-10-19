@@ -11,10 +11,6 @@
 
 ## Selected systems
 
-- **Agentic RAG research - retrieval and evaluation.** In a paid research collaboration supporting
-  a Telkom University lecturer's dissertation, I contribute authority-aware retrieval and build
-  document-grounded QA benchmarks, frozen development/blind splits, citation and abstention scoring,
-  and external-system evaluation runners.
 - **[Fradium](https://github.com/fradiumofficial/fradium) - WCHL 2025 Fully On-Chain Track
   winner.** I contributed cross-chain transaction-risk analysis,
   Rust/ONNX/Wasm inference, stable model persistence, ICPSwap integration, wallet features, and
